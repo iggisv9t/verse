@@ -11,6 +11,7 @@ from struct import pack
 import click
 import logging
 import numpy as np
+import gc
 
 
 MAGIC = 'XGFS'.encode('utf8')
@@ -59,7 +60,7 @@ def list2mat(input, undirected, sep, format):
                 assert len(splt) == 3, 'In weighted edgelist there should be 3 values per line'
                 splt = splt[:-1]
             for node in splt:
-                nodes.add(node)
+                nodes.add(int(node))
     number_of_nodes = len(nodes)
     isnumbers = is_numbers_only(nodes)
     logging.info('Node IDs are numbers: %s', isnumbers)
@@ -67,6 +68,10 @@ def list2mat(input, undirected, sep, format):
         node2id = dict(zip(sorted(map(int, nodes)), range(number_of_nodes)))
     else:
         node2id = dict(zip(sorted(nodes), range(number_of_nodes)))
+
+    del nodes
+    gc.collect()
+
     graph = defaultdict(set)
     with open(input, 'r') as inf:
         for line in inf:
